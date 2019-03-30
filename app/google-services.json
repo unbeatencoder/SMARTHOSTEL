@@ -1,0 +1,73 @@
+{
+  "project_info": {
+    "project_number": "361006057981",
+    "firebase_url": "https://iot-data-aeed1.firebaseio.com",
+    "project_id": "iot-data-aeed1",
+    "storage_bucket": "iot-data-aeed1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:361006057981:android:fc390f51faeaf461",
+        "android_client_info": {
+          "package_name": "com.example.SMARTHOSTEL"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "361006057981-hur1o9uqp1t4mae1bg9276qs4l8gao2t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJaTsb86SW959HiDmdTydKYZT6SCWoMhY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:361006057981:android:c5462a85ec33957b",
+        "android_client_info": {
+          "package_name": "com.example.smarthostel"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "361006057981-hur1o9uqp1t4mae1bg9276qs4l8gao2t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJaTsb86SW959HiDmdTydKYZT6SCWoMhY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

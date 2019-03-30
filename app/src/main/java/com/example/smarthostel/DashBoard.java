@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -93,89 +94,58 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
             Toast.makeText(this, "No Internet Connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        getTemperature();
+        getUserDetails();
     }
 
-    private void getTemperature(){
-//        final ArrayList<String> allSubscribedNgoDetails = new ArrayList<>();
-//        final ProgressDialog progressDialog = new ProgressDialog(this);
-//        progressDialog.setMessage("Fetching Subscribed NGO Details .....");
-//        progressDialog.setCanceledOnTouchOutside(false);
-//        progressDialog.show();
-//        FirebaseApp userApp = FirebaseApp.getInstance("userApp");
-//        String USER = FirebaseAuth.getInstance(userApp).getCurrentUser().getEmail().replaceAll("[^A-Za-z0-9]", "-");
-//        DatabaseReference databaseReference = FirebaseDatabase.getInstance(userApp).getReference("SubscribeDetails").child(USER);
-//        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                for(DataSnapshot ngoSnapshot : dataSnapshot.getChildren()) {
-//                    String temp = ngoSnapshot.getValue(String.class);
-//                    allSubscribedNgoDetails.add(temp);
-//                }
-//                progressDialog.dismiss();
-//                getAllSubscribedNgoEvents(allSubscribedNgoDetails);
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//                progressDialog.dismiss();
-//                Toast.makeText(UserDashboard.this, "Failed : "+databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-//            }
-//        });
-        tvTemperature.setText("100dcelcius");
+    private void getUserDetails(){
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Fetching User Details .....");
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show();
+        FirebaseApp app = FirebaseApp.getInstance();
+        String USER = FirebaseAuth.getInstance().getCurrentUser().getEmail().replaceAll("[^A-Za-z0-9]", "-");
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("USERS").child(USER);
+
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                UserDetails userDetails=dataSnapshot.getValue(UserDetails.class);
+               getTemperature(userDetails);
+               progressDialog.dismiss();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                progressDialog.dismiss();
+                Toast.makeText(DashBoard.this, "Failed : "+databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    private void getTemperature(UserDetails userDetails){
+        String userFloor=userDetails.getFloor();
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Fetching Temperature .....");
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show(); progressDialog.dismiss();
+        FirebaseApp app = FirebaseApp.getInstance();
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("DATA").child(userFloor);
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                TemperatureDetails temperatureDetails=dataSnapshot.getValue(TemperatureDetails.class);
+                tvTemperature.setText(temperatureDetails.getValue());
+                progressDialog.dismiss();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                progressDialog.dismiss();
+                Toast.makeText(DashBoard.this, "Failed : "+databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
-    private void getAllSubscribedNgoEvents(final ArrayList<String> allSubscribedNgoDetails) {
 
-//        if(allSubscribedNgoDetails.size()==0) {
-//            recyclerView.setVisibility(View.GONE);
-//            tvNotice.setVisibility(View.VISIBLE);
-//            tvNotice.setText("You Have Not Subscribe Any NGO !!!");
-//            return;
-//        }
-//
-//        final ArrayList<NgoEvent> allSubscribedNgoEvents = new ArrayList<>();
-//
-//        final ProgressDialog progressDialog = new ProgressDialog(this);
-//        progressDialog.setMessage("Fetching Subscribed NGO Events .....");
-//        progressDialog.setCanceledOnTouchOutside(false);
-//        progressDialog.show();
-//
-//        FirebaseApp ngoApp = FirebaseApp.getInstance("ngoApp");
-//        DatabaseReference databaseReference = FirebaseDatabase.getInstance(ngoApp).getReference("NGOEvents");
-//
-//        final int[] cnt = {0};
-//        for(int i=0;i<allSubscribedNgoDetails.size();i++) {
-//
-//            String key = allSubscribedNgoDetails.get(i).replaceAll("[^A-Za-z0-9]", "-");
-//            DatabaseReference tempDatabaseReference = databaseReference.child(key);
-//            tempDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                    for(DataSnapshot eventSnapshot : dataSnapshot.getChildren()) {
-//                        NgoEvent temp = eventSnapshot.getValue(NgoEvent.class);
-//                        allSubscribedNgoEvents.add(temp);
-//                    }
-//                    cnt[0]++;
-//
-//                    if(cnt[0] == allSubscribedNgoDetails.size()) {
-//                        progressDialog.dismiss();
-//                        setRecyclerView(allSubscribedNgoEvents);
-//                    }
-//                }
-//
-//                @Override
-//                public void onCancelled(@NonNull DatabaseError databaseError) {
-//                    cnt[0]++;
-//
-//                    if(cnt[0] == allSubscribedNgoDetails.size()) {
-//                        progressDialog.dismiss();
-//                        Toast.makeText(UserDashboard.this, "Failed : "+databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-//                    }
-//                }
-//            });
-//        }
-    }
 //------------------------------- Navigation Layout -----------------------------------------//
 
 

@@ -64,9 +64,9 @@ public class SignUp extends AppCompatActivity {
     }
     public void uploadDetails(String email,String studentID,String floor){
         UserDetails user=new UserDetails(email,studentID,floor);
-        String key=studentID;
+        String key=user.getEmailID().replaceAll("[^A-Za-z0-9]", "-");
         FirebaseApp app=FirebaseApp.getInstance();
-        DatabaseReference databaseReference= FirebaseDatabase.getInstance().getReference();
+        DatabaseReference databaseReference= FirebaseDatabase.getInstance().getReference("USERS");
         databaseReference.child(key).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {

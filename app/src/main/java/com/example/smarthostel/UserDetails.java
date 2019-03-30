@@ -9,6 +9,9 @@ public class UserDetails {
         this.studentID = studentID;
         this.floor = floor;
     }
+    public UserDetails(){
+
+    }
     public String getEmailID() {
         return emailID;
     }
