@@ -129,11 +129,12 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
         progressDialog.show(); progressDialog.dismiss();
         FirebaseApp app = FirebaseApp.getInstance();
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("DATA").child(userFloor);
+        Log.d("wtf",""+userFloor);
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                TemperatureDetails temperatureDetails=dataSnapshot.getValue(TemperatureDetails.class);
-                tvTemperature.setText(temperatureDetails.getValue());
+                TemperatureValue temperatureValue=dataSnapshot.getValue(TemperatureValue.class);
+                tvTemperature.setText(temperatureValue.getCurrent());
                 progressDialog.dismiss();
             }
 
@@ -172,9 +173,8 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
             @Override
             public void onClick(DialogInterface dialog, int which)
             {
-
-                FirebaseApp userApp = FirebaseApp.getInstance("userApp");
-                FirebaseAuth.getInstance(userApp).signOut();
+                FirebaseApp app = FirebaseApp.getInstance();
+                FirebaseAuth.getInstance().signOut();
                 startActivity(new Intent(DashBoard.this,MainActivity.class));
                 finish();
             }
