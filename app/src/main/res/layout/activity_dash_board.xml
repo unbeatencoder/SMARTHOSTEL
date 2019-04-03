@@ -40,8 +40,34 @@
                 android:id="@+id/tv_temperature"
                 android:textSize="20dp"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"/>
+                android:layout_height="wrap_content"
+                android:text="Current Temperature:23.3C"
+               />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:text="Tommorows Preference:6-6:30AM"
+                android:id="@+id/tv_tommorowsChoice"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20dp"
+                    android:text="Change Preference for Tommorow"
+                    />
+                <Spinner
+                    android:id="@+id/spinner_tommorow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:drawable/btn_dropdown"
+                    android:spinnerMode="dropdown"/>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Update"
+                    android:onClick="updateTommorow"/>
+
 
         </LinearLayout>
 

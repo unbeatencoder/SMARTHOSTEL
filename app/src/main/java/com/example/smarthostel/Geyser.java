@@ -18,6 +18,10 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.sql.Time;
+import java.util.Calendar;
+import java.util.TimeZone;
+
 public class Geyser extends AppCompatActivity {
     Spinner spinner_monday;
     Spinner spinner_tuesday;
@@ -84,5 +88,38 @@ public class Geyser extends AppCompatActivity {
                 }
             }
         });
+        Preference preference=new Preference();
+        Calendar calendar=Calendar.getInstance(TimeZone.getDefault());
+        int DAYOFWEEK=calendar.get(Calendar.DAY_OF_WEEK);
+        Log.d("StringValue",""+DAYOFWEEK);
+        switch (DAYOFWEEK){
+            case 1:
+                preference.setCurrentpreference(choiceTuesday);
+            case 2:
+                preference.setCurrentpreference(choiceWednesday);
+            case 3:
+                preference.setCurrentpreference(choiceThursday);
+            case 4:
+                preference.setCurrentpreference(choiceFriday);
+            case 5:
+                preference.setCurrentpreference(choiceSaturday);
+            case 6:
+                preference.setCurrentpreference(choiceSunday);
+            case 7:
+                preference.setCurrentpreference(choiceMonday);
+        }
+        DatabaseReference databaseReference2= FirebaseDatabase.getInstance().getReference("TOMMOROWPREFERENCES");
+        databaseReference2.child(key).setValue(preference).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(Geyser.this,"Successfully Updated", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(Geyser.this,"Failed"+task.getException(),Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
     }
 }

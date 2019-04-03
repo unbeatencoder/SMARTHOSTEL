@@ -79,9 +79,23 @@ public class SignUp extends AppCompatActivity {
                 }
             }
         });
-        Preferences preferences=new Preferences("6AM:6:30AM","6AM:6:30AM","6AM:6:30AM","6AM:6:30AM","6AM:6:30AM","6AM:6:30AM","6AM:6:30AM");
+        Preferences preferences=new Preferences("6AM:6:30AM","6AM-6:30AM","6AM-6:30AM","6AM-6:30AM","6AM-6:30AM","6AM-6:30AM","6AM-6:30AM");
         DatabaseReference databaseReference1= FirebaseDatabase.getInstance().getReference("DEFAULT_PREFERENCES");
         databaseReference1.child(key).setValue(preferences).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(SignUp.this,"Successfully Created", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                else{
+                    Toast.makeText(SignUp.this,"Failed"+task.getException(),Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        Preference preference=new Preference("6AM-6:AM");
+        DatabaseReference databaseReference2= FirebaseDatabase.getInstance().getReference("TOMMOROWS_PREFERENCES");
+        databaseReference1.child(key).setValue(preference).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){

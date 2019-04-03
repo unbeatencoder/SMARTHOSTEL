@@ -28,8 +28,13 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -39,14 +44,17 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 public class DashBoard extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    TextView tvTemperature;
+    TextView tvTemperature,tvTommorowPreference;
     Toolbar toolbar;
     DrawerLayout drawerLayout;
     NavigationView navigationView;
+    Spinner spinner_tommorow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +65,15 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
 
     private void init() {
         tvTemperature= (TextView) findViewById(R.id.tv_temperature);
+        tvTommorowPreference=(TextView) findViewById(R.id.tv_tommorowsChoice);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        spinner_tommorow=(Spinner) findViewById(R.id.spinner_tommorow);
+        String[] items = new String[]{"6AM-6:30AM", "6:30AM-7AM", "7AM-7:30AM","7:30AM-8AM", "8AM-8:30AM","8:30AM-9AM", "9AM-9:30AM","9:30AM-10AM", "10AM-10:30AM",
+                "10:30AM-11AM", "11AM-11:30AM","11:30AM-12PM", "5PM-5:30PM","5:30PM-6PM","6PM-6:30PM", "6:30PM-7PM", "7PM-7:30PM","7:30PM-8PM", "8PM-8:30PM","8:30PM-9PM",
+                "9PM-9:30PM","9:30PM-10PM", "10PM-10:30PM", "10:30PM-11PM", "11PM-11:30PM"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
+//set the spinners adapter to the previously created one.
+        spinner_tommorow.setAdapter(adapter);
         setSupportActionBar(toolbar);
         setNavigationDrawer();
         updatePage();
@@ -129,12 +145,27 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
         progressDialog.show(); progressDialog.dismiss();
         FirebaseApp app = FirebaseApp.getInstance();
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("DATA").child(userFloor);
-        Log.d("wtf",""+userFloor);
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 TemperatureValue temperatureValue=dataSnapshot.getValue(TemperatureValue.class);
-                tvTemperature.setText(temperatureValue.getCurrent());
+                tvTemperature.setText("Current Temperature:"+temperatureValue.getCurrent());
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                Toast.makeText(DashBoard.this, "Failed : "+databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+        DatabaseReference databaseReference1 = FirebaseDatabase.getInstance().getReference("TOMMOROWPREFERENCES").child(userDetails.getEmailID().replaceAll("[^A-Za-z0-9]", "-"));
+        Log.d("wtf",userDetails.getEmailID().replaceAll("[^A-Za-z0-9]", "-"));
+        databaseReference1.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Preference preference=dataSnapshot.getValue(Preference.class);
+                tvTommorowPreference.setText("Tommorows Preference:"+preference.getCurrentpreference());
                 progressDialog.dismiss();
             }
 
@@ -159,6 +190,10 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
         }
         else if(id==R.id.signOut){
             signOut();
+        }
+        else if(id==R.id.Profile){
+            Intent intent=new Intent(this,Profile.class);
+
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return false;
@@ -203,5 +238,26 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
             drawerLayout.closeDrawer(GravityCompat.START);
         else
             super.onBackPressed();
+    }
+
+    public void updateTommorow(View view) {
+        String USER= FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        String key=USER.replaceAll("[^A-Za-z0-9]", "-");
+        String choice=spinner_tommorow.getSelectedItem().toString();
+        Preference preference=new Preference(choice);
+        DatabaseReference databaseReference2= FirebaseDatabase.getInstance().getReference("TOMMOROWPREFERENCES");
+        databaseReference2.child(key).setValue(preference).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(DashBoard.this,"Successfully Updated", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(DashBoard.this,"Failed"+task.getException(),Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        init();
+
     }
 }
