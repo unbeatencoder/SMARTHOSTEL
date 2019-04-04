@@ -193,7 +193,7 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
         }
         else if(id==R.id.Profile){
             Intent intent=new Intent(this,Profile.class);
-
+            startActivity(intent);
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return false;
@@ -203,7 +203,6 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setCancelable(false);
         builder.setTitle("Are you sure you want to sign out ?");
-
         builder.setPositiveButton(" YES ", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which)

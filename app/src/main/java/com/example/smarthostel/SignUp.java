@@ -93,9 +93,9 @@ public class SignUp extends AppCompatActivity {
                 }
             }
         });
-        Preference preference=new Preference("6AM-6:AM");
-        DatabaseReference databaseReference2= FirebaseDatabase.getInstance().getReference("TOMMOROWS_PREFERENCES");
-        databaseReference1.child(key).setValue(preference).addOnCompleteListener(new OnCompleteListener<Void>() {
+        Preference preference=new Preference("6AM-6:30AM");
+        DatabaseReference databaseReference2= FirebaseDatabase.getInstance().getReference("TOMMOROWPREFERENCES");
+        databaseReference2.child(key).setValue(preference).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
