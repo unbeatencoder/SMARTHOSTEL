@@ -50,7 +50,7 @@ import java.util.TimeZone;
 
 public class DashBoard extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    TextView tvTemperature,tvTommorowPreference;
+    TextView tvTemperature;
     Toolbar toolbar;
     DrawerLayout drawerLayout;
     NavigationView navigationView;
@@ -65,15 +65,8 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
 
     private void init() {
         tvTemperature= (TextView) findViewById(R.id.tv_temperature);
-        tvTommorowPreference=(TextView) findViewById(R.id.tv_tommorowsChoice);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         spinner_tommorow=(Spinner) findViewById(R.id.spinner_tommorow);
-        String[] items = new String[]{"6AM-6:30AM", "6:30AM-7AM", "7AM-7:30AM","7:30AM-8AM", "8AM-8:30AM","8:30AM-9AM", "9AM-9:30AM","9:30AM-10AM", "10AM-10:30AM",
-                "10:30AM-11AM", "11AM-11:30AM","11:30AM-12PM", "5PM-5:30PM","5:30PM-6PM","6PM-6:30PM", "6:30PM-7PM", "7PM-7:30PM","7:30PM-8PM", "8PM-8:30PM","8:30PM-9PM",
-                "9PM-9:30PM","9:30PM-10PM", "10PM-10:30PM", "10:30PM-11PM", "11PM-11:30PM"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
-//set the spinners adapter to the previously created one.
-        spinner_tommorow.setAdapter(adapter);
         setSupportActionBar(toolbar);
         setNavigationDrawer();
         updatePage();
@@ -165,7 +158,7 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Preference preference=dataSnapshot.getValue(Preference.class);
-                tvTommorowPreference.setText("Tommorows Preference:"+preference.getCurrentpreference());
+                updateScroller(preference);
                 progressDialog.dismiss();
             }
 
@@ -175,6 +168,16 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
                 Toast.makeText(DashBoard.this, "Failed : "+databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void updateScroller(Preference preference) {
+        String[] items = new String[]{"DEFAULTS","6AM-6:30AM", "6:30AM-7AM", "7AM-7:30AM","7:30AM-8AM", "8AM-8:30AM","8:30AM-9AM", "9AM-9:30AM","9:30AM-10AM", "10AM-10:30AM",
+                "10:30AM-11AM", "11AM-11:30AM","11:30AM-12PM", "5PM-5:30PM","5:30PM-6PM","6PM-6:30PM", "6:30PM-7PM", "7PM-7:30PM","7:30PM-8PM", "8PM-8:30PM","8:30PM-9PM",
+                "9PM-9:30PM","9:30PM-10PM", "10PM-10:30PM", "10:30PM-11PM", "11PM-11:30PM"};
+        items[0]=preference.getCurrentpreference();
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
+//set the spinners adapter to the previously created one.
+        spinner_tommorow.setAdapter(adapter);
     }
 
 
@@ -256,6 +259,7 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
                 }
             }
         });
+
         init();
 
     }
