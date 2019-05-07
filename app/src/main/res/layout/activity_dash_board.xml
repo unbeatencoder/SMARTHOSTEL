@@ -24,6 +24,7 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
+
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
                 app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
@@ -35,32 +36,95 @@
             android:fillViewport="true"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             android:orientation="vertical">
-
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/tv_geyser_status"
+                android:padding="8dp"
+                android:fontFamily="sans-serif-condensed"
+                android:text="Current Status of Geyser: " />
             <TextView
                 android:id="@+id/tv_temperature"
                 android:textSize="20dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Current Temperature:23.3C"
+                android:padding="8dp"
+                android:fontFamily="sans-serif-condensed"
+                android:text="Current Temperature : 23.3 \u00B0C"
                />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="20dp"
+                    android:padding="8dp"
+                    android:fontFamily="sans-serif-condensed"
                     android:text="Change Preference for Tommorow"
                     />
-                <Spinner
-                    android:id="@+id/spinner_tommorow"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <Spinner
+                        android:id="@+id/spinner_tommorow"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:background="@android:drawable/btn_dropdown"
+                        android:spinnerMode="dropdown"
+                        android:layout_weight="1"/>
+                    <Button
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:text="Update"
+                        android:layout_weight="1"
+                        android:onClick="updateTommorow1"/>
+                </LinearLayout>
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@android:drawable/btn_dropdown"
-                    android:spinnerMode="dropdown"/>
+                    android:textSize="20dp"
+                    android:id="@+id/tv_valve_status"
+                    android:padding="8dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="Current Status of Valve: " />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/tv_slot_status"
+                android:padding="8dp"
+                android:fontFamily="sans-serif-condensed"
+                android:text="You have 1 slot left for today: " />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textSize="20dp"
+                    android:padding="8dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="Book your Slot " />
                 <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Update"
-                    android:onClick="updateTommorow"/>
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:text="Book"
+                    android:id="@+id/btn_book"
+                    android:layout_weight="1"
+                    android:onClick="bookSlot"/>
+            </LinearLayout>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="Turn ON VALVE"
+                android:id="@+id/btn_turnon"
+                android:onClick="turnONTAP"
+                />
 
 
         </LinearLayout>

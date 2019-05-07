@@ -147,6 +147,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:text="Submit"
-        android:onClick="setChoices"
+        android:onClick="setChoices1"
         android:id="@+id/btn_submitchoices"/>
 </LinearLayout>

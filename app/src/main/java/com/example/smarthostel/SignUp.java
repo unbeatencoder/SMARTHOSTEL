@@ -107,6 +107,19 @@ public class SignUp extends AppCompatActivity {
                 }
             }
         });
+        DatabaseReference databaseReference3= FirebaseDatabase.getInstance().getReference("FLOORMEMBERS").child(user.getFloor());
+        databaseReference3.child(key).setValue(key).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(SignUp.this,"Successfully Created", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                else{
+                    Toast.makeText(SignUp.this,"Failed"+task.getException(),Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
 
     }

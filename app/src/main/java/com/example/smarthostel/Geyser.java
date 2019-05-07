@@ -124,7 +124,33 @@ public class Geyser extends AppCompatActivity {
         spinner_sunday.setAdapter(adapter7);
 
     }
-    public void setChoices(View view) {
+    private void getUserDetails(){
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Fetching User Details .....");
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show();
+        FirebaseApp app = FirebaseApp.getInstance();
+        String USER = FirebaseAuth.getInstance().getCurrentUser().getEmail().replaceAll("[^A-Za-z0-9]", "-");
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("USERS").child(USER);
+
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                UserDetails userDetails=dataSnapshot.getValue(UserDetails.class);
+                progressDialog.dismiss();
+                setChoices(userDetails);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                progressDialog.dismiss();
+                Toast.makeText(Geyser.this, "Failed : "+databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
+    public void setChoices(UserDetails userDetails) {
         final String choiceMonday;
         final String choiceTuesday;
         final String choiceWednesday ;
@@ -159,21 +185,29 @@ public class Geyser extends AppCompatActivity {
         int DAYOFWEEK=calendar.get(Calendar.DAY_OF_WEEK);
         Log.d("StringValue",""+DAYOFWEEK);
         switch (DAYOFWEEK){
-            case 1:
-                preference.setCurrentpreference(choiceTuesday);
             case 2:
-                preference.setCurrentpreference(choiceWednesday);
+                preference.setCurrentpreference(choiceTuesday);
+                break;
             case 3:
-                preference.setCurrentpreference(choiceThursday);
+                preference.setCurrentpreference(choiceWednesday);
+                break;
             case 4:
-                preference.setCurrentpreference(choiceFriday);
+                preference.setCurrentpreference(choiceThursday);
+                break;
             case 5:
-                preference.setCurrentpreference(choiceSaturday);
+                preference.setCurrentpreference(choiceFriday);
+                break;
             case 6:
-                preference.setCurrentpreference(choiceSunday);
+                preference.setCurrentpreference(choiceSaturday);
+                break;
             case 7:
+                preference.setCurrentpreference(choiceSunday);
+                break;
+            case 1:
                 preference.setCurrentpreference(choiceMonday);
+                break;
         }
+
         DatabaseReference databaseReference2= FirebaseDatabase.getInstance().getReference("TOMMOROWPREFERENCES");
         databaseReference2.child(key).setValue(preference).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -186,6 +220,22 @@ public class Geyser extends AppCompatActivity {
                 }
             }
         });
+        DatabaseReference databaseReference3= FirebaseDatabase.getInstance().getReference("FLOORMEMBERS").child(userDetails.getFloor());
+        databaseReference3.child(key).setValue(preference.getCurrentpreference()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(Geyser.this,"Successfully Updated", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(Geyser.this,"Failed"+task.getException(),Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
+    }
+
+    public void setChoices1(View view) {
+        getUserDetails();
     }
 }
