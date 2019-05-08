@@ -46,21 +46,45 @@ public class Geyser extends AppCompatActivity {
         spinner_friday= findViewById(R.id.spinner_friday);
         spinner_saturday= findViewById(R.id.spinner_saturday);
         spinner_sunday= findViewById(R.id.spinner_sunday);
-
-//set the spinners adapter to the previously created one.
         final ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Fetching User Details .....");
         progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.show();
         FirebaseApp app = FirebaseApp.getInstance();
         String USER = FirebaseAuth.getInstance().getCurrentUser().getEmail().replaceAll("[^A-Za-z0-9]", "-");
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("DEFAULT_PREFERENCES").child(USER);
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("USERS").child(USER);
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Preferences preferences1=dataSnapshot.getValue(Preferences.class);
-                Log.d("TAG","WTFFF!");
-                updateDefaults(preferences1);
+                UserDetails userDetails=dataSnapshot.getValue(UserDetails.class);
+                init(userDetails);
+                progressDialog.dismiss();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                progressDialog.dismiss();
+                Toast.makeText(Geyser.this, "Failed : "+databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                return;
+            }
+        });
+//set the spinners adapter to the previously created one.
+
+    }
+
+    private void init(UserDetails userDetails) {
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Fetching User Preferences .....");
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show();
+        FirebaseApp app = FirebaseApp.getInstance();
+        String USER = FirebaseAuth.getInstance().getCurrentUser().getEmail().replaceAll("[^A-Za-z0-9]", "-");
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("FLOORMEMBERS").child(userDetails.getFloor()).child(USER).child("preferences");
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Preferences preferences=dataSnapshot.getValue(Preferences.class);
+                updateDefaults(preferences);
                 progressDialog.dismiss();
             }
 
@@ -72,8 +96,8 @@ public class Geyser extends AppCompatActivity {
             }
         });
 
-
     }
+
     public void updateDefaults(Preferences preferences){
         //create a list of items for the spinner.
         String[] items1 = new String[]{"DEFAULTS1111","6AM-6:30AM", "6:30AM-7AM", "7AM-7:30AM","7:30AM-8AM", "8AM-8:30AM","8:30AM-9AM", "9AM-9:30AM","9:30AM-10AM", "10AM-10:30AM",
@@ -83,7 +107,6 @@ public class Geyser extends AppCompatActivity {
 //There are multiple variations of this, but this is the basic variant.
 
         items1[0]= preferences.getMonday();
-        Log.d("LLL",items1[0]);
         ArrayAdapter<String> adapter1 = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items1);
         spinner_monday.setAdapter(adapter1);
         String[] items2 = new String[]{"DEFAULTS1111","6AM-6:30AM", "6:30AM-7AM", "7AM-7:30AM","7:30AM-8AM", "8AM-8:30AM","8:30AM-9AM", "9AM-9:30AM","9:30AM-10AM", "10AM-10:30AM",
@@ -167,19 +190,6 @@ public class Geyser extends AppCompatActivity {
         choiceSunday=spinner_sunday.getSelectedItem().toString();
         String USER= FirebaseAuth.getInstance().getCurrentUser().getEmail();
         String key=USER.replaceAll("[^A-Za-z0-9]", "-");
-        Preferences preferences=new Preferences(choiceMonday,choiceTuesday,choiceWednesday,choiceThursday,choiceFriday,choiceSaturday,choiceSunday);
-        DatabaseReference databaseReference1= FirebaseDatabase.getInstance().getReference("DEFAULT_PREFERENCES");
-        databaseReference1.child(key).setValue(preferences).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-                    Toast.makeText(Geyser.this,"Successfully Updated", Toast.LENGTH_SHORT).show();
-                }
-                else{
-                    Toast.makeText(Geyser.this,"Failed"+task.getException(),Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
         Preference preference=new Preference();
         Calendar calendar=Calendar.getInstance(TimeZone.getDefault());
         int DAYOFWEEK=calendar.get(Calendar.DAY_OF_WEEK);
@@ -207,21 +217,10 @@ public class Geyser extends AppCompatActivity {
                 preference.setCurrentpreference(choiceMonday);
                 break;
         }
-
-        DatabaseReference databaseReference2= FirebaseDatabase.getInstance().getReference("TOMMOROWPREFERENCES");
-        databaseReference2.child(key).setValue(preference).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-                    Toast.makeText(Geyser.this,"Successfully Updated", Toast.LENGTH_SHORT).show();
-                }
-                else{
-                    Toast.makeText(Geyser.this,"Failed"+task.getException(),Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-        DatabaseReference databaseReference3= FirebaseDatabase.getInstance().getReference("FLOORMEMBERS").child(userDetails.getFloor());
-        databaseReference3.child(key).setValue(preference.getCurrentpreference()).addOnCompleteListener(new OnCompleteListener<Void>() {
+        Preferences preferences=new Preferences(choiceMonday,choiceTuesday,choiceWednesday,choiceThursday,choiceFriday,choiceSaturday,choiceSunday);
+        Effective effective=new Effective(preference,preferences);
+        DatabaseReference databaseReference1= FirebaseDatabase.getInstance().getReference("FLOORMEMBERS").child(userDetails.getFloor());
+        databaseReference1.child(key).setValue(effective).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){

@@ -55,12 +55,12 @@ import java.util.TimeZone;
 
 public class DashBoard extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    TextView tvTemperature,tvValveStatus,tvGeyserStatus,tvSlotStatus;
+    TextView tvTemperature,tvValveStatus,tvGeyserStatus,tvSlotStatus,tvTiming;
     Toolbar toolbar;
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     Spinner spinner_tommorow;
-    Button btnSlot,btnturnON;
+    Button btnSlot,btnturnON,btnOFF;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,11 +69,6 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
         init();
     }
 
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        init();
-    }
 
     private void init() {
         tvTemperature= (TextView) findViewById(R.id.tv_temperature);
@@ -84,7 +79,9 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
         tvValveStatus=(TextView) findViewById(R.id.tv_valve_status);
         btnSlot=(Button) findViewById(R.id.btn_book);
         toolbar=(Toolbar) findViewById(R.id.toolbar);
+        tvTiming=(TextView) findViewById(R.id.tv_timing);
         btnturnON=(Button) findViewById(R.id.btn_turnon);
+        btnOFF=(Button) findViewById(R.id.btn_turnoff);
         setSupportActionBar(toolbar);
         setNavigationDrawer();
         updatePage();
@@ -129,6 +126,7 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
         progressDialog.setMessage("Fetching User Details .....");
         btnSlot.setEnabled(true);
         btnturnON.setEnabled(false);
+        btnOFF.setEnabled(false);
         progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.show();
         FirebaseApp app = FirebaseApp.getInstance();
@@ -141,6 +139,7 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
                 UserDetails userDetails=dataSnapshot.getValue(UserDetails.class);
                 getStatusofGeyser(userDetails);
                 getTemperature(userDetails);
+                getTommorowsTime(userDetails);
                 getStatusofValve(userDetails);
                 progressDialog.dismiss();
             }
@@ -152,6 +151,100 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
             }
         });
     }
+
+    private void getTommorowsTime(UserDetails userDetails) {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("schedule").child(userDetails.getFloor());
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Integer value=dataSnapshot.getValue(Integer.class);
+                String fin="";
+                switch (value){
+                    case 0:
+                        fin="12AM-2AM";
+                        break;
+                    case 1:
+                        fin="1AM-3AM";
+                        break;
+                    case 2:
+                        fin="2AM-4AM";
+                        break;
+                    case 3:
+                        fin="3AM-5AM";
+                        break;
+                    case 4:
+                        fin="4AM-6AM";
+                        break;
+                    case 5:
+                        fin="5AM-7AM";
+                        break;
+                    case 6:
+                        fin="6AM-8AM";
+                        break;
+                    case 7:
+                        fin="7AM-9AM";
+                        break;
+                    case 8:
+                        fin="8AM-10AM";
+                        break;
+                    case 9:
+                        fin="9AM-11AM";
+                        break;
+                    case 10:
+                        fin="10AM-12PM";
+                        break;
+                    case 11:
+                        fin="11AM-1PM";
+                        break;
+                    case 12:
+                        fin="12PM-2PM";
+                        break;
+                    case 13:
+                        fin="1PM-3PM";
+                        break;
+                    case 14:
+                        fin="2PM-4PM";
+                        break;
+                    case 15:
+                        fin="3PM-5PM";
+                        break;
+                    case 16:
+                        fin="4PM-6PM";
+                        break;
+                    case 17:
+                        fin="5PM-7PM";
+                        break;
+                    case 18:
+                        fin="6PM-8PM";
+                        break;
+                    case 19:
+                        fin="7PM-9PM";
+                        break;
+                    case 20:
+                        fin="8PM-10PM";
+                        break;
+                    case 21:
+                        fin="9PM-11PM";
+                        break;
+                    case 22:
+                        fin="10PM-12AM";
+                        break;
+                    case 23:
+                        fin="11PM-1AM";
+                        break;
+
+                }
+                tvTiming.setText("Today's timing "+fin);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(DashBoard.this, "Failed : "+databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
     private void getStatusofGeyser(UserDetails userDetails) {
         final ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Fetching Current Status of Geyser.....");
@@ -196,13 +289,12 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
                 Toast.makeText(DashBoard.this, "Failed : "+databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-        DatabaseReference databaseReference1 = FirebaseDatabase.getInstance().getReference("TOMMOROWPREFERENCES").child(userDetails.getEmailID().replaceAll("[^A-Za-z0-9]", "-"));
-        Log.d("wtf",userDetails.getEmailID().replaceAll("[^A-Za-z0-9]", "-"));
+        DatabaseReference databaseReference1 = FirebaseDatabase.getInstance().getReference("FLOORMEMBERS").child(userDetails.getFloor()).child(userDetails.getEmailID().replaceAll("[^A-Za-z0-9]", "-"));
         databaseReference1.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Preference preference=dataSnapshot.getValue(Preference.class);
-                updateScroller(preference);
+                Effective effective=dataSnapshot.getValue(Effective.class);
+               updateScroller(effective.getPreference());
                 progressDialog.dismiss();
             }
 
@@ -219,7 +311,7 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
         progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.show();
         FirebaseApp app = FirebaseApp.getInstance();
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("VAL_STATUS").child(userDetails.getFloor());
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("PRIORITY_VAL_STATUS").child(userDetails.getFloor());
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -273,16 +365,18 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
     private void setSlots(final UserDetails userDetails) {
         String status_valve=tvValveStatus.getText().toString();
         String status_geyser=tvGeyserStatus.getText().toString();
-        if(status_geyser.compareTo("Current Status of Geyser : off")==0){
+        if(status_geyser.compareTo("Current Status of Geyser : OFF")==0){
             tvSlotStatus.setText("Geyser is off! Please Check the Timings");
             btnSlot.setEnabled(false);
             btnturnON.setEnabled(false);
+            btnOFF.setEnabled(false);
             return;
         }
         else if(status_valve.compareTo("Current Status of Valve : ON")==0){
             tvSlotStatus.setText("Valve is On! Please Try Again Later");
             btnSlot.setEnabled(false);
             btnturnON.setEnabled(false);
+            btnOFF.setEnabled(false);
         }
     }
     private  void bookSlots1(final UserDetails userDetails){
@@ -292,7 +386,7 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 String status_geyser=dataSnapshot.getValue(String.class);
-                if(status_geyser.compareTo("off")==0){
+                if(status_geyser.compareTo("OFF")==0){
                     Toast.makeText(DashBoard.this, "Unable to Book Slot, Geyser was OFF", Toast.LENGTH_SHORT).show();
                     init();
                     return ;
@@ -310,13 +404,13 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
     private void finalValidations(final UserDetails userDetails){
 
         FirebaseApp app = FirebaseApp.getInstance();
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("VAL_STATUS").child(userDetails.getFloor());
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("PRIORITY_VAL_STATUS").child(userDetails.getFloor());
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 String status_valve=dataSnapshot.getValue(String.class);
                 if(status_valve.compareTo("ON")==0){
-                    Toast.makeText(DashBoard.this, "Unable to Book Slot, Valve was OFF", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DashBoard.this, "Someone else is using the facility", Toast.LENGTH_SHORT).show();
                     init();
                     return ;
                 }
@@ -332,17 +426,33 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
     }
     private void bookSlotFinal(final UserDetails userDetails) {
         String key=userDetails.getFloor();
-        FirebaseApp app=FirebaseApp.getInstance();
-        DatabaseReference databaseReference= FirebaseDatabase.getInstance().getReference("PRIORITY_VAL_STATUS");
-        databaseReference.child(key).setValue("OFF").addOnCompleteListener(new OnCompleteListener<Void>() {
+        DatabaseReference databaseReference1= FirebaseDatabase.getInstance().getReference("PRIORITY_VAL_STATUS");
+        databaseReference1.child(key).setValue("ON").addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
-                    Toast.makeText(DashBoard.this,"Successfully Booked Slot", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DashBoard.this,"Successfully Turned On Valve", Toast.LENGTH_SHORT).show();
                     btnSlot.setEnabled(false);
                     btnturnON.setEnabled(true);
+                    btnOFF.setEnabled(true);
                     tvSlotStatus.setText("You have 5 minutes from now");
                     removeSlot(userDetails);
+                }
+                else{
+                    Toast.makeText(DashBoard.this,"Failed"+task.getException(),Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void turnONVALVE(UserDetails userDetails) {
+        String key=userDetails.getFloor();
+        DatabaseReference databaseReference1= FirebaseDatabase.getInstance().getReference("VAL_STATUS");
+        databaseReference1.child(key).setValue("ON").addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(DashBoard.this,"Successfully Turned On Valve", Toast.LENGTH_SHORT).show();
                 }
                 else{
                     Toast.makeText(DashBoard.this,"Failed"+task.getException(),Toast.LENGTH_SHORT).show();
@@ -358,7 +468,7 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
-                    Toast.makeText(DashBoard.this,"Successfully Booked Slot", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DashBoard.this,"Successfully Booked Slot1", Toast.LENGTH_SHORT).show();
                 }
                 else{
                     Toast.makeText(DashBoard.this,"Failed"+task.getException(),Toast.LENGTH_SHORT).show();
@@ -403,7 +513,6 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
                 "9PM-9:30PM","9:30PM-10PM", "10PM-10:30PM", "10:30PM-11PM", "11PM-11:30PM"};
         items[0]=preference.getCurrentpreference();
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
-//set the spinners adapter to the previously created one.
         spinner_tommorow.setAdapter(adapter);
     }
 
@@ -412,20 +521,8 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
         String key=USER.replaceAll("[^A-Za-z0-9]", "-");
         String choice=spinner_tommorow.getSelectedItem().toString();
         Preference preference=new Preference(choice);
-        DatabaseReference databaseReference2= FirebaseDatabase.getInstance().getReference("TOMMOROWPREFERENCES");
-        databaseReference2.child(key).setValue(preference).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-                    Toast.makeText(DashBoard.this,"Successfully Updated", Toast.LENGTH_SHORT).show();
-                }
-                else{
-                    Toast.makeText(DashBoard.this,"Failed"+task.getException(),Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-        DatabaseReference databaseReference3= FirebaseDatabase.getInstance().getReference("FLOORMEMBERS").child(userDetails.getFloor());
-        databaseReference3.child(key).setValue(preference.getCurrentpreference()).addOnCompleteListener(new OnCompleteListener<Void>() {
+        DatabaseReference databaseReference3= FirebaseDatabase.getInstance().getReference("FLOORMEMBERS").child(userDetails.getFloor()).child(key);
+        databaseReference3.child("preference").setValue(preference).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
@@ -547,7 +644,7 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
             super.onBackPressed();
     }
 
-    public void turnONTAP1(UserDetails userDetails){
+    public void turnONTAP1(final UserDetails userDetails){
         String key=userDetails.getFloor();
         FirebaseApp app=FirebaseApp.getInstance();
         DatabaseReference databaseReference= FirebaseDatabase.getInstance().getReference("PRIORITY_VAL_STATUS");
@@ -557,6 +654,7 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
                 if(task.isSuccessful()){
                     Toast.makeText(DashBoard.this,"Successfully Booked Slot", Toast.LENGTH_SHORT).show();
                     btnturnON.setEnabled(false);
+                    turnONVALVE(userDetails);
                     tvSlotStatus.setText("You have 5 minutes from now");
                 }
                 else{
@@ -585,6 +683,69 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 UserDetails userDetails=dataSnapshot.getValue(UserDetails.class);
                 turnONTAP1(userDetails);
+                progressDialog.dismiss();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                progressDialog.dismiss();
+                Toast.makeText(DashBoard.this, "Failed : "+databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+    public void turnOFFTAP1(UserDetails userDetails){
+        String key=userDetails.getFloor();
+        FirebaseApp app=FirebaseApp.getInstance();
+        DatabaseReference databaseReference= FirebaseDatabase.getInstance().getReference("PRIORITY_VAL_STATUS");
+        databaseReference.child(key).setValue("OFF").addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(DashBoard.this,"Successfully Stopped VALVE", Toast.LENGTH_SHORT).show();
+                    btnOFF.setEnabled(false);
+                    tvSlotStatus.setText("You have 5 minutes from now");
+                }
+                else{
+                    Toast.makeText(DashBoard.this,"Failed"+task.getException(),Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        DatabaseReference databaseReference1= FirebaseDatabase.getInstance().getReference("VAL_STATUS");
+        databaseReference1.child(key).setValue("OFF").addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(DashBoard.this,"Successfully Stopped VALVE", Toast.LENGTH_SHORT).show();
+                    btnOFF.setEnabled(false);
+                    tvSlotStatus.setText("You have 5 minutes from now");
+                }
+                else{
+                    Toast.makeText(DashBoard.this,"Failed"+task.getException(),Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+    }
+
+    public void turnOFFTAP(View view) {
+        getUserDetails4();
+
+    }
+
+    private void getUserDetails4() {
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Fetching User Details .....");
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show();
+        FirebaseApp app = FirebaseApp.getInstance();
+        String USER = FirebaseAuth.getInstance().getCurrentUser().getEmail().replaceAll("[^A-Za-z0-9]", "-");
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("USERS").child(USER);
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                UserDetails userDetails=dataSnapshot.getValue(UserDetails.class);
+                turnOFFTAP1(userDetails);
                 progressDialog.dismiss();
             }
 

@@ -37,6 +37,15 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             android:orientation="vertical">
             <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/tv_timing"
+                android:padding="8dp"
+                android:fontFamily="sans-serif-condensed"
+                android:text="Today's Timing: 8AM-10AM"/>
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20dp"
@@ -116,15 +125,28 @@
                     android:layout_weight="1"
                     android:onClick="bookSlot"/>
             </LinearLayout>
-
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
             <Button
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:text="Turn ON VALVE"
+                android:padding="8dp"
                 android:id="@+id/btn_turnon"
                 android:onClick="turnONTAP"
                 />
+            <Button
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:text="Turn OFF VALVE"
+                android:padding="8dp"
+                android:onClick="turnOFFTAP"
+                android:id="@+id/btn_turnoff"
+                android:layout_height="match_parent" />
+            </LinearLayout>
 
 
         </LinearLayout>

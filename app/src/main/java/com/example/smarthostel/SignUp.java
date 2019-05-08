@@ -79,23 +79,8 @@ public class SignUp extends AppCompatActivity {
                 }
             }
         });
-        Preferences preferences=new Preferences("6AM:6:30AM","6AM-6:30AM","6AM-6:30AM","6AM-6:30AM","6AM-6:30AM","6AM-6:30AM","6AM-6:30AM");
-        DatabaseReference databaseReference1= FirebaseDatabase.getInstance().getReference("DEFAULT_PREFERENCES");
-        databaseReference1.child(key).setValue(preferences).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-                    Toast.makeText(SignUp.this,"Successfully Created", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-                else{
-                    Toast.makeText(SignUp.this,"Failed"+task.getException(),Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-        Preference preference=new Preference("6AM-6:30AM");
-        DatabaseReference databaseReference2= FirebaseDatabase.getInstance().getReference("TOMMOROWPREFERENCES");
-        databaseReference2.child(key).setValue(preference).addOnCompleteListener(new OnCompleteListener<Void>() {
+        DatabaseReference databaseReference2= FirebaseDatabase.getInstance().getReference("SLOTUSED");
+        databaseReference2.child(key).setValue("1").addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
@@ -108,7 +93,10 @@ public class SignUp extends AppCompatActivity {
             }
         });
         DatabaseReference databaseReference3= FirebaseDatabase.getInstance().getReference("FLOORMEMBERS").child(user.getFloor());
-        databaseReference3.child(key).setValue(key).addOnCompleteListener(new OnCompleteListener<Void>() {
+        Preference preference2= new Preference("6AM-6:30AM");
+        Preferences preferences2=new Preferences("6AM:6:30AM","6AM-6:30AM","6AM-6:30AM","6AM-6:30AM","6AM-6:30AM","6AM-6:30AM","6AM-6:30AM");
+        Effective effective=new Effective(preference2,preferences2);
+        databaseReference3.child(key).setValue(effective).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
@@ -120,7 +108,6 @@ public class SignUp extends AppCompatActivity {
                 }
             }
         });
-
 
     }
 }
