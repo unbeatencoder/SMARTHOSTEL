@@ -667,7 +667,6 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
 
     public void turnONTAP(View view) {
         getUserDetails3();
-
     }
 
     private void getUserDetails3() {
@@ -682,7 +681,7 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 UserDetails userDetails=dataSnapshot.getValue(UserDetails.class);
-                turnONTAP1(userDetails);
+                checkPriority(userDetails);
                 progressDialog.dismiss();
             }
 
@@ -694,6 +693,35 @@ public class DashBoard extends AppCompatActivity implements NavigationView.OnNav
         });
 
     }
+
+    private void checkPriority(final UserDetails userDetails) {
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Fetching User Details .....");
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show();
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("PRIORITY_VAL_STATUS").child(userDetails.getFloor());
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String string=dataSnapshot.getValue(String.class);
+                if(string.compareTo("OFF")==0){
+                    Toast.makeText(DashBoard.this, "You have crossed 5 min limit", Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
+                    init();
+                    return;
+                }
+                turnONTAP1(userDetails);
+                progressDialog.dismiss();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                progressDialog.dismiss();
+                Toast.makeText(DashBoard.this, "Failed : "+databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     public void turnOFFTAP1(UserDetails userDetails){
         String key=userDetails.getFloor();
         FirebaseApp app=FirebaseApp.getInstance();
